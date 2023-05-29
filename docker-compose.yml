@@ -1,0 +1,53 @@
+version : "2.1"
+
+services :
+
+  prometheus:
+    image: prom/prometheus:latest
+    restart: unless-stopped
+    volumes:
+      - ./appConfig/prometheus/:/etc/prometheus
+      - ./appData/prometheus/data/:/prometheus
+    user: 1000:1000
+    #ports:
+    #  - '9090:9090'
+    networks:
+      - backend
+    #  - gateway
+
+  blackbox_exporter:
+    image: prom/blackbox-exporter:latest
+    restart: unless-stopped
+    volumes:
+      - ./appConfig/blackboxexporter/:/etc/blackboxexporter/
+    command:
+      - '--config.file=/etc/blackboxexporter/config.yml'
+    networks:
+      - backend
+
+  grafana:
+    image: grafana/grafana:latest
+    restart: unless-stopped
+    depends_on:
+      - prometheus
+    user: "472"
+    volumes:
+      - ./appData/grafana/data/:/var/lib/grafana
+      - ./appConfig/grafana/dashboards:/var/lib/grafana/dashboards
+      - ./appConfig/grafana/provisioning:/etc/grafana/provisioning
+    environment:
+      VIRTUAL_HOST: ${VIRTUAL_HOST}
+      GF_INSTALL_PLUGINS: grafana-clock-panel,grafana-polystat-panel
+      # - GF_SECURITY_ADMIN_PASSWORD='9uT46ZKE'
+    networks:
+      - backend
+      - gateway
+
+networks :
+
+  gateway :
+    external:
+      name: ${FRONTEND_NETWORK}
+
+  backend :
+    name: ${BACKEND_NETWORK}

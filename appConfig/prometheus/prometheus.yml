@@ -1,0 +1,94 @@
+# my global config
+global:
+  scrape_interval:     30s # By default, scrape targets every 30 seconds.
+  evaluation_interval: 30s # By default, scrape targets every 30 seconds.
+  # scrape_timeout is set to the global default (10s).
+
+  # Attach these labels to any time series or alerts when communicating with
+  # external systems (federation, remote storage, Alertmanager).
+  external_labels:
+      monitor: 'MySampleApp'
+
+# A scrape configuration containing exactly one endpoint to scrape:
+# Here it's Prometheus itself.
+scrape_configs:
+#   - job_name: 'blackbox'
+#     metrics_path: /probe
+#     params:
+#       module: [http_2xx]  # Look for a HTTP 200 response.
+#     static_configs:
+#       - targets:
+#         - https://pagertree.com
+#         - https://www.google.com
+#         - https://prometheus.io
+#     relabel_configs:
+#       - source_labels: [__address__]
+#         target_label: __param_target
+#       - source_labels: [__param_target]
+#         target_label: instance
+#       - target_label: __address__
+#         replacement: "blackbox_exporter:9115"  # Blackbox exporter.
+#       - target_label: region
+#         replacement: "local"
+  - job_name: 'mysampleapp-prod-acces-bdd'
+    metrics_path: /probe
+    params:
+      module: [oknok]  # Look for a HTTP 200 response with OK or KO content
+    static_configs:
+      - targets:
+        - https://mysampleapp.com/bddaccess/
+    relabel_configs:
+      - source_labels: [__address__]
+        target_label: __param_target
+      - source_labels: [__param_target]
+        target_label: instance
+      - target_label: __address__
+        replacement: "blackbox_exporter:9115"  # Blackbox exporter.
+  - job_name: 'mysampleapp-front-1'
+    metrics_path: /probe
+    params:
+      module: [http_front_1]  # Look for a HTTP 200 response on X-Hit-Front: 1.
+    static_configs:
+      - targets:
+        - https://mysampleapp.com/test.html
+    relabel_configs:
+      - source_labels: [__address__]
+        target_label: __param_target
+      - source_labels: [__param_target]
+        target_label: instance
+      - target_label: __address__
+        replacement: "blackbox_exporter:9115"  # Blackbox exporter.
+  - job_name: 'analytics'
+    scrape_interval: 300s #5 Minutes
+    metrics_path: /metrics/analytics/prom
+    static_configs:
+      - targets: ['mysampleapp.com']
+  - job_name: 'BDD'
+    scrape_timeout: 30s
+    metrics_path: /metrics/bdd/prom
+    static_configs:
+      - targets: ['mysampleapp.com']
+      - targets: ['mysecondsampleapp.com']
+  - job_name: 'system-started'
+    metrics_path: /probe
+    params:
+      module: [oknok]  # Look for a HTTP 200 response with OK or KO content
+    static_configs:
+      - targets:
+        - https://mysampleapp.com/monitoring/sys1/prom
+        - https://mysecondsampleapp.com/monitoring/sys2/prom
+        - https://mythirdsampleapp.com/monitoring/sys3/prom
+    relabel_configs:
+      - source_labels: [__address__]
+        target_label: __param_target
+      - source_labels: [__param_target]
+        target_label: instance
+      - target_label: __address__
+        replacement: "blackbox_exporter:9115"  # Blackbox exporter.
+  - job_name: 'system-freq'
+    metrics_path: /system/status/freq
+    static_configs:
+      - targets:
+        - mysampleapp.com
+        - mysecondsampleapp.com
+        - mythirdsampleapp.com

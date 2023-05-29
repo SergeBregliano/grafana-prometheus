@@ -1,0 +1,25 @@
+version: '2.1'
+
+services:
+  prometheus:
+    restart: 'no'
+    ports:
+      - '9090:9090'
+
+  blackbox_exporter:
+    restart: 'no'
+    ports:
+      - 9115:9115
+
+  grafana:
+    restart: 'no'
+    ports:
+      - 80:3000
+
+networks :
+
+  gateway :
+    name: ${FRONTEND_NETWORK}
+
+  backend :
+    name: ${BACKEND_NETWORK}

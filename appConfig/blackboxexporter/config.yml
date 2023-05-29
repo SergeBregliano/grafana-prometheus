@@ -1,0 +1,67 @@
+modules:
+  http_2xx:
+    prober: http
+    timeout: 20s
+    http:
+      valid_http_versions: ["HTTP/1.1", "HTTP/2"]
+      valid_status_codes: []  # Defaults to 2xx
+      method: GET
+      no_follow_redirects: false
+      fail_if_ssl: false
+      fail_if_not_ssl: false
+      fail_if_body_matches_regexp:
+        - "Could not connect to database"
+      tls_config:
+        insecure_skip_verify: false
+      preferred_ip_protocol: "ip4" # defaults to "ip6"
+  oknok:
+      prober: http
+      timeout: 20s
+      http:
+        valid_http_versions: ["HTTP/1.1", "HTTP/2"]
+        valid_status_codes:
+          - 200
+          - 404
+          - 502
+          - 503
+        method: GET
+        no_follow_redirects: false
+        fail_if_ssl: false
+        fail_if_not_ssl: false
+        #fail_if_body_not_matches_regexp:
+        #  - "OK"
+        #  - "Ok"
+        #  - "ok"
+        fail_if_body_matches_regexp: # Ne fonctionne pas ?
+          - "ko"
+          - "KO"
+          - "Ko"
+          - "introuvable"
+          - "Maintenance"
+          - "Erreur"
+          - "Gateway"
+        tls_config:
+          insecure_skip_verify: false
+        preferred_ip_protocol: "ip4" # defaults to "ip6"
+  http_front_1:
+    prober: http
+    timeout: 20s
+    http:
+      valid_http_versions: ["HTTP/1.1", "HTTP/2"]
+      valid_status_codes: []  # Defaults to 2xx
+      method: GET
+      #headers:
+      #  X-Hit-Front: 1
+      no_follow_redirects: false
+      fail_if_ssl: false
+      fail_if_not_ssl: false
+      #fail_if_header_not_matches:
+      #  - header: X-Handled-by
+      #    regexp: 'prod-front1'
+      fail_if_body_matches_regexp:
+        - "Maintenance"
+        - "Erreur"
+        - "Gateway"
+      tls_config:
+        insecure_skip_verify: false
+      preferred_ip_protocol: "ip4" # defaults to "ip6"
